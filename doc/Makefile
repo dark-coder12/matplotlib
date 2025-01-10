@@ -18,13 +18,16 @@ help:
 clean:
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	rm -rf "$(SOURCEDIR)/build"
+	rm -rf "$(SOURCEDIR)/_tags"
 	rm -rf "$(SOURCEDIR)/api/_as_gen"
 	rm -rf "$(SOURCEDIR)/gallery"
 	rm -rf "$(SOURCEDIR)/plot_types"
 	rm -rf "$(SOURCEDIR)/tutorials"
+	rm -rf "$(SOURCEDIR)/users/explain"
 	rm -rf "$(SOURCEDIR)/savefig"
 	rm -rf "$(SOURCEDIR)/sphinxext/__pycache__"
 	rm -f $(SOURCEDIR)/_static/constrained_layout*.png
+	rm -f $(SOURCEDIR)/sg_execution_times.rst
 
 show:
 	@python -c "import webbrowser; webbrowser.open_new_tab('file://$(shell pwd)/build/html/index.html')"

@@ -494,7 +494,7 @@ display an image of the colormap.
 
 .. only:: html
 
-    .. code-block::
+    .. code-block:: ipython
 
         In[1]: cmap = plt.get_cmap('viridis').with_extremes(bad='r', under='g', over='b')
 
@@ -547,7 +547,7 @@ for out-of-range and masked values.
 New ``cm.unregister_cmap`` function
 -----------------------------------
 
-`.cm.unregister_cmap` allows users to remove a colormap that they have
+``matplotlib.cm.unregister_cmap`` allows users to remove a colormap that they have
 previously registered.
 
 New ``CenteredNorm`` for symmetrical data around a center
@@ -582,7 +582,7 @@ If the center of symmetry is different from 0, it can be set with the *vcenter*
 argument. To manually set the range of `~.matplotlib.colors.CenteredNorm`, use
 the *halfrange* argument.
 
-See :doc:`/tutorials/colors/colormapnorms` for an example and more details
+See :ref:`colormapnorms` for an example and more details
 about data normalization.
 
 New ``FuncNorm`` for arbitrary normalizations
@@ -617,8 +617,8 @@ forward and inverse.
                     size=16, va='center', ha='center')
     plt.show()
 
-See :doc:`/tutorials/colors/colormapnorms` for an example and more details
-about data normalization.
+See :ref:`colormapnorms` for an example and more details about data
+normalization.
 
 GridSpec-based colorbars can now be positioned above or to the left of the main axes
 ------------------------------------------------------------------------------------
@@ -634,8 +634,8 @@ supxlabel and supylabel
 -----------------------
 
 It is possible to add x- and y-labels to a whole figure, analogous to
-`.FigureBase.suptitle` using the new `.FigureBase.supxlabel` and
-`.FigureBase.supylabel` methods.
+`.Figure.suptitle` using the new `.Figure.supxlabel` and
+`.Figure.supylabel` methods.
 
 .. plot::
 
