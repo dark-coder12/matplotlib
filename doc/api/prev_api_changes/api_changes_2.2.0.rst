@@ -9,7 +9,7 @@ New dependency
 
 `kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
 dependency to support the new constrained_layout,  see
-:doc:`/tutorials/intermediate/constrainedlayout_guide` for
+:ref:`constrainedlayout_guide` for
 more details.
 
 
@@ -61,7 +61,7 @@ the future, only broadcasting (1 column to *n* columns) will be performed.
 rcparams
 ~~~~~~~~
 
-The :rc:`backend.qt4` and :rc:`backend.qt5` rcParams were deprecated
+The ``backend.qt4`` and ``backend.qt5`` rcParams were deprecated
 in version 2.2.  In order to force the use of a specific Qt binding,
 either import that binding first, or set the ``QT_API`` environment
 variable.

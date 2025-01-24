@@ -137,7 +137,7 @@ def issues_closed_since(period=timedelta(days=365),
 
 
 def sorted_by_field(issues, field='closed_at', reverse=False):
-    """Return a list of issues sorted by closing date date."""
+    """Return a list of issues sorted by closing date."""
     return sorted(issues, key=lambda i: i[field], reverse=reverse)
 
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--since-tag', type=str,
         help='The git tag to use for the starting point '
-             '(typically the last major release).')
+             '(typically the last macro release).')
     parser.add_argument(
         '--milestone', type=str,
         help='The GitHub milestone to use for filtering issues [optional].')
