@@ -32,8 +32,8 @@ Color norms
    SymLogNorm
    TwoSlopeNorm
 
-Colormaps
----------
+Univariate Colormaps
+--------------------
 
 .. autosummary::
    :toctree: _as_gen/
@@ -42,6 +42,17 @@ Colormaps
    Colormap
    LinearSegmentedColormap
    ListedColormap
+
+Multivariate Colormaps
+----------------------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   BivarColormap
+   SegmentedBivarColormap
+   BivarColormapFromImage
 
 Other classes
 -------------
@@ -71,3 +82,17 @@ Functions
    same_color
    get_named_colors_mapping
    make_norm_from_scale
+
+Exported colors
+---------------
+
+The data used to populate the :doc:`/gallery/color/named_colors` are exposed
+as dictionaries that map color names to hex strings.
+
+.. py:data:: BASE_COLORS
+
+.. py:data:: TABLEAU_COLORS
+
+.. py:data:: CSS4_COLORS
+
+.. py:data:: XKCD_COLORS

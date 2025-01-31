@@ -351,7 +351,7 @@ rcParams
   - ``validate_orientation``
   - ``validate_pgf_texsystem``
   - ``validate_ps_papersize``
-  - ``validate_svg_fontset``
+  - ``validate_svg_fonttype``
   - ``validate_toolbar``
   - ``validate_webagg_address``
 
@@ -359,7 +359,6 @@ rcParams
 
   - :rc:`axes.axisbelow` no longer accepts strings starting with "line"
     (case-insensitive) as "line"; use "line" (case-sensitive) instead.
-  - :rc:`text.latex.preamble` and :rc:`pdf.preamble` no longer accept
-    non-string values.
+  - :rc:`text.latex.preamble` and ``pdf.preamble`` no longer accept non-string values.
   - All ``*.linestyle`` rcParams no longer accept ``offset = None``; set the
     offset to 0 instead.

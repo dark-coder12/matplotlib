@@ -24,7 +24,7 @@ library, so using it should be safe, but layouts may not be exactly the same as
 more development takes place.
 
 Details of using ``constrained_layout``, and its algorithm are available at
-:doc:`/tutorials/intermediate/constrainedlayout_guide`
+:ref:`constrainedlayout_guide`
 
 ``plt.subplot`` re-selection without keyword arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -203,7 +203,7 @@ time, not at draw time.
 Raise or warn on registering a colormap twice
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When using `matplotlib.cm.register_cmap` to register a user provided or
+When using ``matplotlib.cm.register_cmap`` to register a user provided or
 third-party colormap it will now raise a `ValueError` if trying to over-write
 one of the built in colormaps and warn if trying to over write a user
 registered colormap. This may raise for user-registered colormaps in the
