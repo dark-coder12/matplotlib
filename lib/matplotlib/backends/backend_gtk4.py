@@ -5,8 +5,8 @@ import os
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
-    CloseEvent)
+    ToolContainerBase, MouseButton,
+    KeyEvent, LocationEvent, MouseEvent, ResizeEvent, CloseEvent)
 
 try:
     import gi
@@ -20,7 +20,7 @@ try:
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
-    raise ImportError from e
+    raise ImportError(e) from e
 
 from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
@@ -29,12 +29,13 @@ from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     TimerGTK as TimerGTK4,
 )
 
+_GOBJECT_GE_3_47 = gi.version_info >= (3, 47, 0)
+
 
 class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
-    _context_is_scaled = False
 
     def __init__(self, figure=None):
         super().__init__(figure=figure)
@@ -74,7 +75,11 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.set_focusable(True)
 
         css = Gtk.CssProvider()
-        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style = '.matplotlib-canvas { background-color: white; }'
+        if Gtk.check_version(4, 9, 3) is None:
+            css.load_from_data(style, -1)
+        else:
+            css.load_from_data(style.encode('utf-8'))
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
@@ -112,6 +117,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "scroll_event", self, *self._mpl_coords(), step=dy,
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -120,6 +126,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_press_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         self.grab_focus()
 
@@ -128,12 +135,14 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_release_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
         KeyEvent(
             "key_press_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -141,25 +150,30 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         KeyEvent(
             "key_release_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
     def motion_notify_event(self, controller, x, y):
         MouseEvent(
             "motion_notify_event", self, *self._mpl_coords((x, y)),
+            buttons=self._mpl_buttons(controller),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def enter_notify_event(self, controller, x, y):
         LocationEvent(
             "figure_enter_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def leave_notify_event(self, controller):
         LocationEvent(
             "figure_leave_event", self, *self._mpl_coords(),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def resize_event(self, area, width, height):
@@ -170,6 +184,26 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.figure.set_size_inches(winch, hinch, forward=False)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def _mpl_buttons(self, controller):
+        # NOTE: This spews "Broken accounting of active state" warnings on
+        # right click on macOS.
+        surface = self.get_native().get_surface()
+        is_over, x, y, event_state = surface.get_device_position(
+            self.get_display().get_default_seat().get_pointer())
+        # NOTE: alternatively we could use
+        #   event_state = controller.get_current_event_state()
+        # but for button_press/button_release this would report the state
+        # *prior* to the event rather than after it; the above reports the
+        # state *after* it.
+        mod_table = [
+            (MouseButton.LEFT, Gdk.ModifierType.BUTTON1_MASK),
+            (MouseButton.MIDDLE, Gdk.ModifierType.BUTTON2_MASK),
+            (MouseButton.RIGHT, Gdk.ModifierType.BUTTON3_MASK),
+            (MouseButton.BACK, Gdk.ModifierType.BUTTON4_MASK),
+            (MouseButton.FORWARD, Gdk.ModifierType.BUTTON5_MASK),
+        ]
+        return {name for name, mask in mod_table if event_state & mask}
 
     def _mpl_modifiers(self, controller=None):
         if controller is None:
@@ -224,13 +258,8 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         lw = 1
         dash = 3
-        if not self._context_is_scaled:
-            x0, y0, w, h = (dim / self.device_pixel_ratio
-                            for dim in self._rubberband_rect)
-        else:
-            x0, y0, w, h = self._rubberband_rect
-            lw *= self.device_pixel_ratio
-            dash *= self.device_pixel_ratio
+        x0, y0, w, h = (dim / self.device_pixel_ratio
+                        for dim in self._rubberband_rect)
         x1 = x0 + w
         y1 = y0 + h
 
@@ -284,9 +313,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
-    @_api.delete_parameter("3.6", "window")
-    def __init__(self, canvas, window=None):
-        self._win = window
+    def __init__(self, canvas):
         Gtk.Box.__init__(self)
 
         self.add_css_class('toolbar')
@@ -328,8 +355,6 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
 
         _NavigationToolbar2GTK.__init__(self, canvas)
 
-    win = _api.deprecated("3.6")(property(lambda self: self._win))
-
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(
             title='Save the figure',
@@ -361,7 +386,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         formats = [formats[default_format], *formats[:default_format],
                    *formats[default_format+1:]]
         dialog.add_choice('format', 'File format', formats, formats)
-        dialog.set_choice('format', formats[default_format])
+        dialog.set_choice('format', formats[0])
 
         dialog.set_current_folder(Gio.File.new_for_path(
             os.path.expanduser(mpl.rcParams['savefig.directory'])))
@@ -391,6 +416,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
                 msg.show()
 
         dialog.show()
+        return self.UNKNOWN_SAVED_STATUS
 
 
 class ToolbarGTK4(ToolContainerBase, Gtk.Box):
@@ -475,15 +501,10 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
             toolitem.handler_unblock(signal)
 
     def remove_toolitem(self, name):
-        if name not in self._toolitems:
-            self.toolmanager.message_event(f'{name} not in toolbar', self)
-            return
-
-        for group in self._groups:
-            for toolitem, _signal in self._toolitems[name]:
+        for toolitem, _signal in self._toolitems.pop(name, []):
+            for group in self._groups:
                 if toolitem in self._groups[group]:
                     self._groups[group].remove(toolitem)
-        del self._toolitems[name]
 
     def _add_separator(self):
         sep = Gtk.Separator()

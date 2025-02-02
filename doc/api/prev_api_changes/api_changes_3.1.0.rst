@@ -308,7 +308,7 @@ FreeType or libpng are not in the compiler or linker's default path, set the
 standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 ``CL``/``LINK`` on Windows, to indicate the relevant paths.
 
-See details in :doc:`/users/installing/index`.
+See details in :doc:`/install/index`.
 
 Setting artist properties twice or more in the same call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -463,7 +463,7 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
 Exception changes
 -----------------
-- `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
+- ``mpl_toolkits.axes_grid1.axes_size.GetExtentHelper`` now raises `ValueError`
   for invalid directions instead of `KeyError`.
 - Previously, subprocess failures in the animation framework would raise either
   in a `RuntimeError` or a `ValueError` depending on when the error occurred.
@@ -533,7 +533,7 @@ The following miscellaneous API elements have been removed
     logger = logging.getLogger('matplotlib')
     logger.setLevel(logging.INFO)
     # configure log handling: Either include it into your ``logging`` hierarchy,
-    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # e.g. by configuring a root logger using ``logging.basicConfig()``,
     # or add a standalone handler to the matplotlib logger:
     logger.addHandler(logging.StreamHandler())
 
@@ -743,8 +743,8 @@ The following signature related behaviours are deprecated:
   `.Axes.annotate()` instead.
 - Passing (n, 1)-shaped error arrays to `.Axes.errorbar()`, which was not
   documented and did not work for ``n = 2``. Pass a 1D array instead.
-- The *frameon* kwarg to `~.Figure.savefig` and the :rc:`savefig.frameon` rcParam.
-  To emulate ``frameon = False``, set *facecolor* to fully
+- The *frameon* keyword argument to `~.Figure.savefig` and the ``savefig.frameon``
+  rcParam. To emulate ``frameon = False``, set *facecolor* to fully
   transparent (``"none"``, or ``(0, 0, 0, 0)``).
 - Passing a non-1D (typically, (n, 1)-shaped) input to `.Axes.pie`.
   Pass a 1D array instead.
@@ -932,9 +932,9 @@ internal datetime representation; or use ``dates.datestr2num``.
 Axes3D
 ~~~~~~
 
-- `.axes3d.Axes3D.w_xaxis`
-- `.axes3d.Axes3D.w_yaxis`
-- `.axes3d.Axes3D.w_zaxis`
+- ``.axes3d.Axes3D.w_xaxis``
+- ``.axes3d.Axes3D.w_yaxis``
+- ``.axes3d.Axes3D.w_zaxis``
 
 Use ``axes3d.Axes3D.xaxis``, ``axes3d.Axes3D.yaxis`` and
 ``axes3d.Axes3D.zaxis`` instead.
